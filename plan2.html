@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>G+1 House · 30×80 West-facing · Thanjavur</title>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef1f2;--ink:#1d2a33;--mut:#5d6b74;--card:#fff;--line:#c9d2d7;--acc:#a0703f;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14191d;--ink:#e6ecef;--mut:#93a1a9;--card:#1c2329;--line:#2f3a42}}
+:root[data-theme="dark"]{--bg:#14191d;--ink:#e6ecef;--mut:#93a1a9;--card:#1c2329;--line:#2f3a42}
+html,body{height:100%;margin:0}body{background:var(--bg);color:var(--ink);font:15px/1.5 Figtree,system-ui,sans-serif;display:flex;flex-direction:column}
+header{padding:10px 14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+h1{font-size:16px;margin:0 auto 0 0;font-weight:600}
+button{font:inherit;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:5px 10px;cursor:pointer}
+button.on{background:var(--acc);border-color:var(--acc);color:#fff}
+#plans{flex:1;overflow:auto;padding:14px;display:none}#v3{flex:1;position:relative;min-height:0}
+canvas{width:100%;height:100%;display:block;touch-action:none}
+.tb{position:absolute;left:8px;right:8px;top:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.tb input{width:110px}.tb label{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:4px 8px;font-size:13px}
+.sheet{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:14px;max-width:1100px;margin-inline:auto}
+.sheet h2{font-size:15px;margin:0 0 6px}svg{width:100%;height:auto;display:block}
+.note{max-width:1100px;margin:0 auto;color:var(--mut);font-size:13px}.note b{color:var(--ink)}
+table{border-collapse:collapse;width:100%;font-size:13px}td{padding:3px 6px;border-bottom:1px solid var(--line)}td:last-child{text-align:right}
+</style></head><body>
+<header><h1>G+1 Residence · 30×80 ft · West-facing · Thanjavur</h1>
+<button id="t1" class="on">Floor plans</button><button id="t2">3D model</button></header>
+
+<section id="plans" style="display:block">
+ <div class="sheet"><h2>Ground floor</h2><svg id="s0"></svg></div>
+ <div class="sheet"><h2>First floor</h2><svg id="s1"></svg></div>
+ <div class="sheet"><h2>Area &amp; budget check</h2><table>
+ <tr><td>Plot</td><td>30 × 80 = 2,400 sq ft</td></tr>
+ <tr><td>Ground floor footprint (48 × 23)</td><td>1,104 sq ft · ~46% coverage</td></tr>
+ <tr><td>First floor (35 × 23) + balcony (7 × 11.5)</td><td>~885 sq ft</td></tr>
+ <tr><td>Total built-up</td><td>~1,990 sq ft</td></tr>
+ <tr><td>Rough cost at ₹2,100–2,500 / sq ft</td><td>₹42–50 lakh</td></tr>
+ <tr><td>Height (plinth + 2 floors + parapet)</td><td>~25.5 ft</td></tr></table></div>
+ <p class="note"><b>Revision 2:</b> 2 bedrooms on the ground floor (parents + Bedroom 2, each with bath), 2 on the first floor (master + child). The main kitchen and dining are now on the first floor with the lounge; the ground floor keeps a pantry/tea counter and utility. <b>Assumed setbacks:</b> front 20 ft (garden + 2 cars), sides 3.5 ft, rear 12 ft. These are my planning assumptions, not verified rules. Check setbacks, FSI, coverage and parking against current Tamil Nadu / Thanjavur rules before construction. Doors and windows are indicative. Cost is a rough estimate for structure and standard finishes, excluding interiors and landscaping.</p>
+</section>
+
+<section id="v3" style="display:none"><canvas id="cv"></canvas>
+ <div class="tb"><button data-v="0">1 Front elevation</button><button data-v="1">2 Front-left</button><button data-v="2">3 Front-right</button><button data-v="3">4 Night</button><button data-v="4">5 Aerial</button>
+ <button id="cut">Cutaway: off</button><button id="vd" class="on">Foyer void</button><button id="nt">Night</button>
+ <label>Sun <input id="hr" type="range" min="7" max="17" step=".5" value="15"></label></div></section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* ---------- plan data: [name,x1,y1,x2,y2,type]  x = West(0)→East(80), y = North(0)→South(30) ---------- */
+const G=[['Sit-out',20,15,27,26.5,'o'],['Foyer (double ht)',27,15.5,36,26.5,'c'],['Stair',36,18.5,43,26.5,'c'],['Passage',36,15.5,43,18.5,'c'],
+['Living',27,3.5,41,15.5,'l'],['Bedroom 2',41,3.5,53,15.5,'b'],['Bath 2',53,3.5,59,9.5,'w'],['Wardrobe',53,9.5,59,15.5,'c'],['Utility / wash',59,3.5,68,9.5,'w'],['Pantry',59,9.5,68,15.5,'k'],
+['Light court',43,15.5,48,21,'g'],['Common bath',43,21,48,26.5,'w'],["Parents' bedroom 1",48,15.5,62,26.5,'b'],['Bath 1',62,15.5,68,21,'w'],['Prayer',62,21,68,26.5,'p']];
+const F=[['Balcony',20,15,27,26.5,'o'],['Void',27,15.5,36,26.5,'v'],['Stair',36,18.5,43,26.5,'c'],['Landing',36,15.5,43,18.5,'c'],
+['Master bedroom',27,3.5,40,15.5,'b'],['Dressing',40,3.5,45,9.5,'c'],['Master bath',40,9.5,45,15.5,'w'],['Child bedroom',45,3.5,55,15.5,'b'],
+['Child bath',55,3.5,62,9.5,'w'],['Study',55,9.5,62,15.5,'l'],['Lounge / dining',43,15.5,54,26.5,'l'],['Kitchen',54,15.5,62,26.5,'k'],['Terrace garden',62,3.5,68,26.5,'t']];
+const COL={o:'#e3ddcf',l:'#efe3cc',b:'#ead4b2',w:'#c9dde5',c:'#e4e1da',k:'#f1d9c0',g:'#b4d79d',p:'#dccff0',t:'#c5e0ad',v:'#f6f1e4'};
+function plan(id,R,fl){let s='<g font-family="Figtree,sans-serif" text-anchor="middle" fill="#1d2a33">';
+ s+='<rect x="-8" y="-5" width="96" height="42" fill="none"/><rect x="-7" y="-1" width="7" height="32" fill="#9aa4aa"/><text x="-3.5" y="15" font-size="1" fill="#fff" transform="rotate(-90 -3.5 15)">ROAD 20 ft</text>';
+ s+='<rect x="0" y="0" width="80" height="30" fill="#f7f8f6" stroke="#1d2a33" stroke-width=".25"/>';
+ if(!fl){s+='<rect x="0" y="0" width="20" height="19" fill="#d8d6d0"/><rect x="0" y="19" width="20" height="11" fill="#bfe0aa"/><text x="10" y="26" font-size="1">Front garden</text>';
+  s+='<rect x="3" y="4.5" width="14.5" height="6" rx="1" fill="#8a949b"/><rect x="3" y="13.5" width="14.5" height="6" rx="1" fill="#8a949b"/><text x="10" y="8" font-size=".9" fill="#fff">Car 1</text><text x="10" y="17" font-size=".9" fill="#fff">Car 2</text>';
+  s+='<rect x="20" y="3.5" width="7" height="11.5" fill="#e9e6df" stroke="#888" stroke-width=".1" stroke-dasharray=".4"/><text x="23.5" y="9.5" font-size=".8">Bike bay</text><text x="23.5" y="10.6" font-size=".7">(pergola)</text>';
+  s+='<rect x="-.3" y="3" width=".6" height="16" fill="#1d2a33"/><text x="1.2" y="2.4" font-size=".7" text-anchor="start">Vehicle gate 16 ft</text><rect x="-.3" y="24" width=".6" height="3" fill="#1d2a33"/>';
+  s+='<rect x="68" y="3.5" width="12" height="23" fill="#d6e8c7"/><text x="74" y="15" font-size="1">Rear yard</text><text x="74" y="16.2" font-size=".8">(wash · plants)</text>';}
+ else s+='<rect x="0" y="0" width="20" height="30" fill="#eef0ee"/><text x="10" y="15" font-size="1" fill="#778">Open to sky</text><text x="10" y="16.2" font-size=".8" fill="#778">(garden + parking below)</text>';
+ s+='<rect x="20" y="3.5" width="48" height="23" fill="none" stroke="#8a949b" stroke-width=".12" stroke-dasharray=".5"/>';
+ R.forEach(([n,a,b,c,d,t])=>{const w=c-a,h=d-b,fs=Math.max(.5,Math.min(.95,w/(n.length*.56)));
+  s+=`<rect x="${a}" y="${b}" width="${w}" height="${h}" fill="${COL[t]}" stroke="#1d2a33" stroke-width="${t=='o'?.12:.3}" ${t=='o'||t=='v'?'stroke-dasharray=".4"':''}/>`;
+  if(n=='Stair'){for(let y=b+.5;y<d;y+=.8)s+=`<line x1="${a+.4}" x2="${c-.4}" y1="${y}" y2="${y}" stroke="#6b7479" stroke-width=".08"/>`;}
+  s+=`<text x="${(a+c)/2}" y="${(b+d)/2}" font-size="${fs}" font-weight="600">${n}</text><text x="${(a+c)/2}" y="${(b+d)/2+fs+.15}" font-size=".6" fill="#5d6b74">${w} × ${h}</text>`;});
+ if(fl){s+='<rect x="45" y="4" width="0" height="0"/>';
+  s+='<rect x="63" y="5" width="3" height="2" fill="#7fb35f"/><rect x="63" y="22" width="3" height="2" fill="#7fb35f"/>';}
+ s+='<g transform="translate(78 4)"><circle r="1.6" fill="none" stroke="#1d2a33" stroke-width=".12"/><path d="M0 -1.5 L.7 .8 L0 .4 L-.7 .8Z"/><text y="3" font-size=".9">N</text></g>';
+ s+='<text x="40" y="-1.5" font-size="1">80 ft depth · West (road) ← → East (rear)</text><text x="84" y="15" font-size="1" transform="rotate(90 84 15)">30 ft frontage</text></g>';
+ document.getElementById(id).setAttribute('viewBox','-8 -3 96 36');document.getElementById(id).innerHTML=s}
+plan('s0',G,0);plan('s1',F,1);
+
+/* ---------- 3D ---------- */
+const T=THREE,cv=document.getElementById('cv'),ren=new T.WebGLRenderer({canvas:cv,antialias:true});
+ren.shadowMap.enabled=true;ren.shadowMap.type=T.PCFSoftShadowMap;
+const sc=new T.Scene(),cam=new T.PerspectiveCamera(40,1,1,700),hemi=new T.HemisphereLight(0xffffff,0x667755,.65),sun=new T.DirectionalLight(0xfff0d8,1.1);
+sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);const sh=sun.shadow.camera;sh.left=-70;sh.right=70;sh.top=70;sh.bottom=-70;sh.far=500;
+sun.target.position.set(44,0,15);sc.add(hemi,sun,sun.target);
+const M=(c,o)=>new T.MeshStandardMaterial(Object.assign({color:c,roughness:.85},o||{}));
+const wh=M(0xf3f0ea),wd=M(0x9b6a40,{roughness:.55}),st=M(0x8a8579,{roughness:1}),cn=M(0xd8d5cd),dk=M(0x252b30),
+ gl=M(0x4d6f85,{transparent:true,opacity:.6,roughness:.1,metalness:.3,emissive:0xffb85c,emissiveIntensity:0}),
+ lamp=M(0xffffff,{emissive:0xffb347,emissiveIntensity:0}),grs=M(0x6f9d4e),pl=M(0x4f8a3a);
+const gR=new T.Group(),fW=new T.Group(),fR=new T.Group(),slabV=new T.Group();sc.add(gR,fW,fR,slabV);
+function B(x1,y1,x2,y2,z1,z2,m,g){const o=new T.Mesh(new T.BoxGeometry(x2-x1,z2-z1,y2-y1),m);o.position.set((x1+x2)/2,(z1+z2)/2,(y1+y2)/2);o.castShadow=o.receiveShadow=true;(g||sc).add(o);return o}
+function walls(a,b,c,d,z1,z2,m,g){const t=.25;B(a-t,b-t,c+t,b+t,z1,z2,m,g);B(a-t,d-t,c+t,d+t,z1,z2,m,g);B(a-t,b-t,a+t,d+t,z1,z2,m,g);B(c-t,b-t,c+t,d+t,z1,z2,m,g)}
+const fc={l:0xe6d6b8,b:0xc9a574,w:0xb7ccd3,c:0xdad6cc,k:0xe8cfb4,g:0x7fb35f,p:0xcdbfe3,o:0xcfc8b8,t:0x8fbf6f,v:0xdad6cc};
+// base
+B(-40,-70,130,100,-.3,-.05,grs);B(-60,-70,-20,100,-.28,0,M(0x9a8f7c));B(-20,-70,0,100,-.28,.0,M(0x4a4d50));B(-22.4,-70,-22,100,0,5,M(0xcfc9bd));for(let y=-60;y<95;y+=8)B(-10.2,y,-9.8,y+3.5,0,.03,M(0xe8e4d8));B(-1.2,-1.3,-.6,-.7,0,18,dk);B(-1.2,-1.3,3,-.7,17.4,18,dk);B(2.6,-1.3,3.6,-.7,17.2,17.5,lamp);tree(-26,10,12);tree(-27,-20,13);B(0,0,20,19,-.05,.04,M(0xb9b6ae));B(0,19,20,30,-.05,.02,M(0x78a95a));
+B(20,15,27,26.5,0,1.5,cn);B(27,3.5,68,26.5,0,1.5,cn);
+// ground floor
+G.forEach(([n,a,b,c,d,t])=>{B(a,b,c,d,1.4,1.5,M(fc[t]));if(t=='o')return;walls(a,b,c,d,1.5,12,t=='g'?gl:wh,fW==0?0:undefined);
+ if(t!='g'&&n!='Foyer (double ht)')B(a-.25,b-.25,c+.25,d+.25,12,12.5,cn,gR)});
+B(26.75,15,36.25,27,12,12.5,cn,slabV);B(27,15.5,36,26.5,12,12.5,cn,slabV);slabV.visible=false;
+B(20,15,27,26.5,12,12.5,cn,fW);[[20.2,15.2],[20.2,26.3],[26.8,15.2]].forEach(p=>B(p[0]-.3,p[1]-.3,p[0]+.3,p[1]+.3,1.5,12,wd));
+// first floor
+F.forEach(([n,a,b,c,d,t])=>{if(t=='o'){B(a,b,c,d,12.5,12.58,M(fc[t]),fW);return}
+ if(t!='v')B(a,b,c,d,12.5,12.58,M(fc[t]),fW);walls(a,b,c,d,12.5,22.5,t=='v'?wh:wh,fW);B(a-.25,b-.25,c+.25,d+.25,22.5,23,cn,fR)});
+B(26.5,3,62.5,27,22.5,23.05,cn,fR);
+// terrace parapet + planters
+B(67.8,3.5,68.2,26.5,12.5,15.5,wh,fW);B(62,3.3,68,3.7,12.5,15.5,wh,fW);B(62,26.3,68,26.7,12.5,15.5,wh,fW);
+[[63,5,66,9],[63,18,66,22]].forEach(p=>{B(p[0],p[1],p[2],p[3],12.6,13.6,wd,fW);B(p[0]+.2,p[1]+.2,p[2]-.2,p[3]-.2,13.6,14.4,pl,fW)});
+// west facade: stone, wood, glazing, fins
+B(26.7,15.5,27,26.5,1.5,12,st);B(26.55,19.6,26.85,22.6,1.5,9,wd);B(26.7,3.5,27,15.5,12.5,22.5,wd);
+B(26.55,5.5,26.8,12.5,15,20.5,gl);B(26.5,4,27,14.5,21.3,21.8,cn);for(let y=4.5;y<14.5;y+=1)B(24.9,y,26.7,y+.2,15,21.3,wd);
+B(26.7,16,26.95,26,13.5,22,gl);
+B(26.6,5,26.9,14,3.5,10.5,gl);for(let y=4.2;y<15;y+=1)B(25.6,y,26.5,y+.22,1.5,11,wd);
+for(let y=15;y<=26.5;y+=1.3)B(19.7,y,20.4,y+.25,12.5,21.6,wd,fR);for(let y=15;y<26.5;y+=1.2)B(20,y,27,y+.3,21.5,21.9,wd,fR);
+// bike-bay pergola
+for(let y=3.6;y<15;y+=1.1)B(20,y,27,y+.3,10.5,10.8,wd);[3.7,14.7].forEach(y=>B(20,y-.2,20.5,y+.2,1.5,10.5,wd));
+// balcony glass railing
+B(19.9,15,20,26.5,12.5,16,gl,fW);B(20,14.9,27,15,12.5,16,gl,fW);B(20,26.5,27,26.6,12.5,16,gl,fW);B(19.8,15,20.1,26.5,16,16.15,dk,fW);
+// windows N/S/E
+const W=(f,a,b,z1,z2)=>{if(f=='N')B(a,3.35,b,3.55,z1,z2,gl);if(f=='S')B(a,26.45,b,26.65,z1,z2,gl)};
+[[30,38,3.5,10.5],[44,50,3.5,9.5],[61,66,6.5,9],[30,37,15,21],[47,53,15,21],[57,61,16,20]].forEach(w=>W('N',w[0],w[1],w[2]+ (w[2]>3.5?0:0)+(w[2]<12&&w[3]>12?0:0),w[3]));
+[[52,58,3.5,9.5],[44.5,46.5,7,9],[56,61,15,21],[45,51,15,21]].forEach(w=>W('S',w[0],w[1],w[2],w[3]));
+// fix GF z (ground windows sit above plinth)
+
+// soffit, planters, path, roof pergola
+B(20.05,15.05,26.95,26.45,11.85,12,wd,fW);
+B(20.1,15.2,21.1,26.3,12.58,13.4,wd,fW);B(20.2,15.3,21,26.2,13.4,14.2,pl,fW);
+B(24.4,15.6,26.5,26.4,1.5,2.6,st);B(24.6,15.8,26.3,26.2,2.6,3.6,pl);
+B(24.4,3.8,26.4,5,12.5,13.4,wd,fW);
+for(let y=16;y<26;y+=2){const b=new T.Mesh(new T.SphereGeometry(.9,10,8),pl);b.position.set(25.5,3.9,y);b.castShadow=true;sc.add(b)}
+for(let i=0;i<8;i++){const b=new T.Mesh(new T.SphereGeometry(.8+i%2*.3,10,8),pl);b.position.set(1.4,.9,20+i*1.2);b.castShadow=true;sc.add(b)}
+for(let x=2;x<20;x+=1.8)B(x,24.3,x+1.1,25.1,.04,.12,M(0xb8b2a4));
+for(let x=20;x<24;x+=1.8)B(x,24.3,x+1.1,25.1,.04,.12,M(0xb8b2a4));
+[[63,13],[67.4,13],[63,20],[67.4,20]].forEach(p=>B(p[0]-.2,p[1]-.2,p[0]+.2,p[1]+.2,12.5,17,wd,fW));
+for(let x=62.6;x<68;x+=.9)B(x,12.8,x+.3,20.2,17,17.25,wd,fW);
+// boundary
+B(0,-.3,80,0,0,6,wh);B(0,30,80,30.3,0,6,wh);B(80,0,80.3,30,0,6,wh);B(-.4,0,0,3,0,5,st);B(-.4,19,0,24,0,3,st);B(-.4,27,0,30,0,5,st);
+B(-.2,3,0,19,0,4.5,dk).material=M(0x252b30,{transparent:true,opacity:.55});B(-.2,24,0,27,0,4.5,dk);
+// neighbours (context)
+B(18,-36,68,-4,0,22,M(0xc9c6bf));B(18,34,68,64,0,12,M(0xc9c6bf));
+// cars + bikes
+function car(y,c){B(3,y,17.5,y+5.8,.5,2.3,M(c));B(7,y+.5,13.5,y+5.3,2.3,4.3,M(0x222a30,{roughness:.2}))}car(4.6,0x7f8a92);car(13.6,0x3b4a5a);
+[5.5,8,10.5].forEach(y=>B(21,y,24.5,y+.5,1.5,3.5,dk));
+// trees
+function tree(x,z,h){const t=new T.Mesh(new T.CylinderGeometry(.3,.45,h*.45,8),wd);t.position.set(x,h*.22,z);const f=new T.Mesh(new T.SphereGeometry(h*.34,14,12),pl);f.position.set(x,h*.62,z);f.castShadow=t.castShadow=true;sc.add(t,f)}
+tree(5,26,12);tree(15,28,9);tree(74,6,14);tree(74,24,11);tree(-5,-8,13);
+// path lights
+const pts=[[3,21],[9,23.5],[15,24.5],[19,24.5],[2,27]];const lights=[];
+pts.forEach(p=>{B(p[0]-.2,p[1]-.2,p[0]+.2,p[1]+.2,0,1.6,dk);const l=new T.Mesh(new T.SphereGeometry(.4,8,8),lamp);l.position.set(p[0],1.9,p[1]);sc.add(l)});
+[[23,10,10.4],[23.5,20,12.3],[22,5,9]].forEach(p=>{const pt=new T.PointLight(0xffb347,0,28);pt.position.set(p[0],p[2],p[1]);sc.add(pt);lights.push(pt)});
+B(20.2,15.2,26.8,26.3,11.9,12,lamp);B(27.1,3.6,40,3.7,22.2,22.4,lamp);
+
+/* ---------- controls ---------- */
+const TG=new T.Vector3(44,6,15);let th=.7,ph=.42,r=115,P=new Map(),dayHr=15,night=false,cut=0;
+const V=[[0,.03,150,24,11,15,0,18],[-.55,.1,58,24,8,15,0,40],[.55,.1,58,24,8,15,0,40],[-.45,.08,60,26,7,15,1,40],[.75,.5,125,44,4,15,0,40]];
+function place(){cam.position.set(TG.x-r*Math.cos(ph)*Math.cos(th),TG.y+r*Math.sin(ph),TG.z+r*Math.cos(ph)*Math.sin(th));cam.lookAt(TG)}
+function setSun(){const a=(dayHr-6)/12*Math.PI;sun.position.set(44+Math.cos(a)*110,Math.sin(a)*85+8,15+45);
+ sun.intensity=night?0:1.1;hemi.intensity=night?.18:.65;sc.background=new T.Color(night?0x0d1522:0xcfe3f1);
+ gl.emissiveIntensity=night?.9:0;lamp.emissiveIntensity=night?2:0;lights.forEach(l=>l.intensity=night?1.1:0)}
+function rs(){const w=cv.clientWidth,h=cv.clientHeight;ren.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()}
+cv.onpointerdown=e=>{cv.setPointerCapture(e.pointerId);P.set(e.pointerId,[e.clientX,e.clientY])};
+cv.onpointerup=cv.onpointercancel=e=>P.delete(e.pointerId);
+cv.onpointermove=e=>{const o=P.get(e.pointerId);if(!o)return;if(P.size==1){th-=(e.clientX-o[0])*.006;ph=Math.max(.03,Math.min(1.5,ph+(e.clientY-o[1])*.006))}
+ else{const q=[...P].find(k=>k[0]!=e.pointerId)[1],d0=Math.hypot(o[0]-q[0],o[1]-q[1]),d1=Math.hypot(e.clientX-q[0],e.clientY-q[1]);r=Math.max(30,Math.min(260,r*d0/Math.max(d1,1)))}
+ P.set(e.pointerId,[e.clientX,e.clientY])};
+cv.addEventListener('wheel',e=>{e.preventDefault();r=Math.max(30,Math.min(260,r*(1+Math.sign(e.deltaY)*.08)))},{passive:false});
+document.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{const v=V[+b.dataset.v];[th,ph,r]=v;TG.set(v[3],v[4],v[5]);cam.fov=v[7];cam.updateProjectionMatrix();night=!!v[6];document.getElementById('nt').classList.toggle('on',night);setSun()});
+const cutL=['Cutaway: off','Cutaway: roof off','Cutaway: ground plan'];
+function apply(){fR.visible=cut==0;fW.visible=cut<2;gR.visible=cut<2;document.getElementById('cut').textContent=cutL[cut]}
+document.getElementById('cut').onclick=()=>{cut=(cut+1)%3;apply()};
+const vb=document.getElementById('vd');vb.onclick=()=>{vb.classList.toggle('on');slabV.visible=!vb.classList.contains('on');vb.textContent=slabV.visible?'Normal height':'Foyer void'};
+document.getElementById('nt').onclick=e=>{night=!night;e.target.classList.toggle('on',night);setSun()};
+document.getElementById('hr').oninput=e=>{dayHr=+e.target.value;setSun()};
+const t1=document.getElementById('t1'),t2=document.getElementById('t2');
+function tab(a){t1.classList.toggle('on',a==1);t2.classList.toggle('on',a==2);document.getElementById('plans').style.display=a==1?'block':'none';document.getElementById('v3').style.display=a==2?'block':'none';if(a==2)rs()}
+t1.onclick=()=>tab(1);t2.onclick=()=>tab(2);addEventListener('resize',rs);
+setSun();apply();(function loop(){requestAnimationFrame(loop);if(document.getElementById('v3').style.display=='none')return;place();ren.render(sc,cam)})();
+</script></body></html>
