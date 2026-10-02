@@ -34,7 +34,14 @@ table{border-collapse:collapse;width:100%;font-size:13px}td{padding:3px 6px;bord
  <tr><td>Total built-up</td><td>~1,990 sq ft</td></tr>
  <tr><td>Rough cost at ₹2,100–2,500 / sq ft</td><td>₹42–50 lakh</td></tr>
  <tr><td>Height (plinth + 2 floors + parapet)</td><td>~25.5 ft</td></tr></table></div>
- <p class="note"><b>Revision 2:</b> 2 bedrooms on the ground floor (parents + Bedroom 2, each with bath), 2 on the first floor (master + child). The main kitchen and dining are now on the first floor with the lounge; the ground floor keeps a pantry/tea counter and utility. <b>Assumed setbacks:</b> front 20 ft (garden + 2 cars), sides 3.5 ft, rear 12 ft. These are my planning assumptions, not verified rules. Check setbacks, FSI, coverage and parking against current Tamil Nadu / Thanjavur rules before construction. Doors and windows are indicative. Cost is a rough estimate for structure and standard finishes, excluding interiors and landscaping.</p>
+ <div class="sheet"><h2>Cost breakdown (≈1,990 sq ft, planning estimate ₹48 lakh)</h2><table>
+ <tr><td>Foundation &amp; plinth (8%)</td><td>₹3.8 L</td></tr><tr><td>RCC frame, slabs, masonry (30%)</td><td>₹14.4 L</td></tr>
+ <tr><td>Plaster, paint, waterproofing (10%)</td><td>₹4.8 L</td></tr><tr><td>Flooring, tiles, stone (10%)</td><td>₹4.8 L</td></tr>
+ <tr><td>Doors &amp; windows (7%)</td><td>₹3.4 L</td></tr><tr><td>Electrical &amp; lighting (6%)</td><td>₹2.9 L</td></tr>
+ <tr><td>Plumbing &amp; sanitary, 5 baths (7%)</td><td>₹3.4 L</td></tr><tr><td>Stair, railings, façade stone/wood, pergola (6%)</td><td>₹2.9 L</td></tr>
+ <tr><td>Compound wall, gate, landscape, parking (6%)</td><td>₹2.9 L</td></tr><tr><td>Architect, approvals, contingency (10%)</td><td>₹4.8 L</td></tr>
+ <tr><td><b>Not included:</b> modular kitchen, wardrobes, furniture, solar, borewell, septic</td><td>₹6–10 L extra</td></tr></table></div>
+ <p class="note"><b>Layout notes:</b> a passage links Living, Bedroom 2, utility and the parents' bedroom. The study is a desk nook in the first-floor lounge. A gallery links the balcony to the stair and master bedroom, with the double-height void beside it. Doors are indicative and not modelled in 3D. Percentages are my planning estimate, not a quotation. <b>Qibla:</b> the arrow on the ground plan shows ≈291° (about 20° north of West) for Thanjavur. Any room works for prayer; keep that wall clear, and avoid toilet seats facing or backing it. Please verify with a compass app. <b>Revision 2:</b> 2 bedrooms on the ground floor (parents + Bedroom 2, each with bath), 2 on the first floor (master + child). The main kitchen and dining are now on the first floor with the lounge; the ground floor keeps a pantry/tea counter and utility. <b>Assumed setbacks:</b> front 20 ft (garden + 2 cars), sides 3.5 ft, rear 12 ft. These are my planning assumptions, not verified rules. Check setbacks, FSI, coverage and parking against current Tamil Nadu / Thanjavur rules before construction. Doors and windows are indicative. Cost is a rough estimate for structure and standard finishes, excluding interiors and landscaping.</p>
 </section>
 
 <section id="v3" style="display:none"><canvas id="cv"></canvas>
@@ -45,14 +52,26 @@ table{border-collapse:collapse;width:100%;font-size:13px}td{padding:3px 6px;bord
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 /* ---------- plan data: [name,x1,y1,x2,y2,type]  x = West(0)→East(80), y = North(0)→South(30) ---------- */
-const G=[['Sit-out',20,15,27,26.5,'o'],['Foyer (double ht)',27,15.5,36,26.5,'c'],['Stair',36,18.5,43,26.5,'c'],['Passage',36,15.5,43,18.5,'c'],
-['Living',27,3.5,41,15.5,'l'],['Bedroom 2',41,3.5,53,15.5,'b'],['Bath 2',53,3.5,59,9.5,'w'],['Wardrobe',53,9.5,59,15.5,'c'],['Utility / wash',59,3.5,68,9.5,'w'],['Pantry',59,9.5,68,15.5,'k'],
+const G=[['Sit-out',20,15,27,26.5,'o'],['Foyer (double ht)',27,15.5,36,26.5,'c'],['Stair',36,18.5,43,26.5,'c'],['Hall',36,15.5,43,18.5,'c'],
+['Living',27,3.5,43,15.5,'l'],['Bedroom 2',43,3.5,55,12.5,'b'],['Bath 2',55,3.5,60,9.5,'w'],['Wardrobe',55,9.5,60,12.5,'c'],['Pantry',60,3.5,68,8,'k'],['Utility / wash',60,8,68,12.5,'w'],['Passage',43,12.5,68,15.5,'c'],
 ['Light court',43,15.5,48,21,'g'],['Common bath',43,21,48,26.5,'w'],["Parents' bedroom 1",48,15.5,62,26.5,'b'],['Bath 1',62,15.5,68,21,'w'],['Prayer',62,21,68,26.5,'p']];
-const F=[['Balcony',20,15,27,26.5,'o'],['Void',27,15.5,36,26.5,'v'],['Stair',36,18.5,43,26.5,'c'],['Landing',36,15.5,43,18.5,'c'],
+const F=[['Balcony',20,15,27,26.5,'o'],['Gallery',27,15.5,36,20,'c'],['Void',27,20,36,26.5,'v'],['Stair',36,18.5,43,26.5,'c'],['Landing',36,15.5,43,18.5,'c'],
 ['Master bedroom',27,3.5,40,15.5,'b'],['Dressing',40,3.5,45,9.5,'c'],['Master bath',40,9.5,45,15.5,'w'],['Child bedroom',45,3.5,55,15.5,'b'],
-['Child bath',55,3.5,62,9.5,'w'],['Study',55,9.5,62,15.5,'l'],['Lounge / dining',43,15.5,54,26.5,'l'],['Kitchen',54,15.5,62,26.5,'k'],['Terrace garden',62,3.5,68,26.5,'t']];
+['Child bath',55,3.5,62,9.5,'w'],['Wash / store',55,9.5,62,15.5,'w'],['Lounge / dining',43,15.5,54,26.5,'l'],['Kitchen',54,15.5,62,26.5,'k'],['Terrace garden',62,3.5,68,26.5,'t']];
 const COL={o:'#e3ddcf',l:'#efe3cc',b:'#ead4b2',w:'#c9dde5',c:'#e4e1da',k:'#f1d9c0',g:'#b4d79d',p:'#dccff0',t:'#c5e0ad',v:'#f6f1e4'};
-function plan(id,R,fl){let s='<g font-family="Figtree,sans-serif" text-anchor="middle" fill="#1d2a33">';
+
+const D0=[[27,19.5,'v',3,1],[28.5,15.5,'h',3.5,-1],[44,12.5,'h',3,-1],[55,4.5,'v',2.5,1],[55,10,'v',2.5,1],[62,12.5,'h',2.5,-1],[62,8,'h',2.5,-1],[50,15.5,'h',3,1],[62,16.5,'v',2.5,1],[62,22,'v',2.5,1],[44,21,'h',2.5,1]];
+const D1=[[36.5,15.5,'h',3,-1],[40,4.5,'v',3,1],[41,9.5,'h',2.5,1],[47,15.5,'h',3,-1],[55,4.5,'v',2.5,1],[57,15.5,'h',2.5,-1],[27,16.2,'v',3,-1]];
+const GP0=[[42.8,12.8,.4,2.4],[35.8,15.8,.4,2.7],[36.5,15.3,4,.4],[43.5,15.3,4,.4],[42.8,16,.4,2]];
+const GP1=[[42.8,15.8,.4,2.5],[35.8,15.8,.4,2.5]];
+const FU0=[[41.8,5,1,6,'wd'],[34.5,5.5,3,6,'sofa'],[31,4.5,2.5,2.5,'sofa'],[31,12,2.5,2.5,'sofa'],[37.8,7,2,3,'tbl'],[46,4,6,6.5,'bed'],[60.3,3.7,7.4,1.8,'cnt'],[60.4,8.4,2.5,2.5,'cnt'],[54,18.5,6.5,6,'bed'],[49,25,5,1.4,'wd'],[63.5,22.4,2,3,'mat'],[55.4,3.8,.6,2,'wd']];
+const FU1=[[31,4,6.5,6.5,'bed'],[40.3,3.7,4.4,.9,'wd'],[46,4,5,6.5,'bed'],[52.5,4,2,4,'tbl'],[53.6,10,1.2,4.5,'wd'],[44.5,16.3,5,2.4,'sofa'],[45.5,21.5,5,3.2,'tbl'],[51.3,24.2,2.4,2,'tbl'],[54.3,25,7.5,1.5,'cnt'],[60.4,16,1.6,9,'cnt'],[56.5,20,3.5,2,'cnt']];
+const FC={bed:'#f4efe4',sofa:'#cdbba0',tbl:'#e1c9a0',cnt:'#d5d9dc',wd:'#bda27c',mat:'#c3a9e0'};
+function dr([x,y,o,w,g]){let k='stroke="#555" stroke-width=".08" fill="none"',a,l;
+ if(o=='h'){a=`<rect x="${x}" y="${y-.2}" width="${w}" height=".4" fill="#fff"/>`;l=g>0?`<path d="M${x+w} ${y}A${w} ${w} 0 0 1 ${x} ${y+w}" ${k}/><line x1="${x}" y1="${y}" x2="${x}" y2="${y+g*w}" stroke="#333" stroke-width=".14"/>`:`<path d="M${x+w} ${y}A${w} ${w} 0 0 0 ${x} ${y-w}" ${k}/><line x1="${x}" y1="${y}" x2="${x}" y2="${y+g*w}" stroke="#333" stroke-width=".14"/>`}
+ else{a=`<rect x="${x-.2}" y="${y}" width=".4" height="${w}" fill="#fff"/>`;l=g>0?`<path d="M${x} ${y+w}A${w} ${w} 0 0 0 ${x+w} ${y}" ${k}/><line x1="${x}" y1="${y}" x2="${x+w}" y2="${y}" stroke="#333" stroke-width=".14"/>`:`<path d="M${x} ${y+w}A${w} ${w} 0 0 1 ${x-w} ${y}" ${k}/><line x1="${x}" y1="${y}" x2="${x-w}" y2="${y}" stroke="#333" stroke-width=".14"/>`}
+ return a+l}
+function plan(id,R,fl){let L='';let s='<g font-family="Figtree,sans-serif" text-anchor="middle" fill="#1d2a33">';
  s+='<rect x="-8" y="-5" width="96" height="42" fill="none"/><rect x="-7" y="-1" width="7" height="32" fill="#9aa4aa"/><text x="-3.5" y="15" font-size="1" fill="#fff" transform="rotate(-90 -3.5 15)">ROAD 20 ft</text>';
  s+='<rect x="0" y="0" width="80" height="30" fill="#f7f8f6" stroke="#1d2a33" stroke-width=".25"/>';
  if(!fl){s+='<rect x="0" y="0" width="20" height="19" fill="#d8d6d0"/><rect x="0" y="19" width="20" height="11" fill="#bfe0aa"/><text x="10" y="26" font-size="1">Front garden</text>';
@@ -65,9 +84,11 @@ function plan(id,R,fl){let s='<g font-family="Figtree,sans-serif" text-anchor="m
  R.forEach(([n,a,b,c,d,t])=>{const w=c-a,h=d-b,fs=Math.max(.5,Math.min(.95,w/(n.length*.56)));
   s+=`<rect x="${a}" y="${b}" width="${w}" height="${h}" fill="${COL[t]}" stroke="#1d2a33" stroke-width="${t=='o'?.12:.3}" ${t=='o'||t=='v'?'stroke-dasharray=".4"':''}/>`;
   if(n=='Stair'){for(let y=b+.5;y<d;y+=.8)s+=`<line x1="${a+.4}" x2="${c-.4}" y1="${y}" y2="${y}" stroke="#6b7479" stroke-width=".08"/>`;}
-  s+=`<text x="${(a+c)/2}" y="${(b+d)/2}" font-size="${fs}" font-weight="600">${n}</text><text x="${(a+c)/2}" y="${(b+d)/2+fs+.15}" font-size=".6" fill="#5d6b74">${w} × ${h}</text>`;});
+  L+=`<text x="${(a+c)/2}" y="${(b+d)/2}" font-size="${fs}" font-weight="600">${n}</text><text x="${(a+c)/2}" y="${(b+d)/2+fs+.15}" font-size=".6" fill="#5d6b74">${w} × ${h}</text>`;});
+ (fl?GP1:GP0).forEach(g=>s+=`<rect x="${g[0]}" y="${g[1]}" width="${g[2]}" height="${g[3]}" fill="#fff"/>`);(fl?FU1:FU0).forEach(([x,y,w,h,t])=>s+=`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx=".2" fill="${FC[t]}" stroke="#7a766c" stroke-width=".07"/>`);(fl?D1:D0).forEach(d=>s+=dr(d));s+=L;
  if(fl){s+='<rect x="45" y="4" width="0" height="0"/>';
   s+='<rect x="63" y="5" width="3" height="2" fill="#7fb35f"/><rect x="63" y="22" width="3" height="2" fill="#7fb35f"/>';}
+ if(!fl)s+='<defs><marker id="ar" markerWidth="4" markerHeight="4" refX="3" refY="2" orient="auto"><path d="M0 0L4 2L0 4Z" fill="#7a3fa0"/></marker></defs><line x1="65" y1="23.7" x2="60.3" y2="21.9" stroke="#7a3fa0" stroke-width=".25" marker-end="url(#ar)"/><text x="62.5" y="25.6" font-size=".6" fill="#7a3fa0">Qibla ≈291°</text>';
  s+='<g transform="translate(78 4)"><circle r="1.6" fill="none" stroke="#1d2a33" stroke-width=".12"/><path d="M0 -1.5 L.7 .8 L0 .4 L-.7 .8Z"/><text y="3" font-size=".9">N</text></g>';
  s+='<text x="40" y="-1.5" font-size="1">80 ft depth · West (road) ← → East (rear)</text><text x="84" y="15" font-size="1" transform="rotate(90 84 15)">30 ft frontage</text></g>';
  document.getElementById(id).setAttribute('viewBox','-8 -3 96 36');document.getElementById(id).innerHTML=s}
@@ -93,7 +114,7 @@ B(20,15,27,26.5,0,1.5,cn);B(27,3.5,68,26.5,0,1.5,cn);
 // ground floor
 G.forEach(([n,a,b,c,d,t])=>{B(a,b,c,d,1.4,1.5,M(fc[t]));if(t=='o')return;walls(a,b,c,d,1.5,12,t=='g'?gl:wh,fW==0?0:undefined);
  if(t!='g'&&n!='Foyer (double ht)')B(a-.25,b-.25,c+.25,d+.25,12,12.5,cn,gR)});
-B(26.75,15,36.25,27,12,12.5,cn,slabV);B(27,15.5,36,26.5,12,12.5,cn,slabV);slabV.visible=false;
+B(26.75,15,36.25,20,12,12.5,cn,gR);B(26.75,20,36.25,27,12,12.5,cn,slabV);slabV.visible=false;
 B(20,15,27,26.5,12,12.5,cn,fW);[[20.2,15.2],[20.2,26.3],[26.8,15.2]].forEach(p=>B(p[0]-.3,p[1]-.3,p[0]+.3,p[1]+.3,1.5,12,wd));
 // first floor
 F.forEach(([n,a,b,c,d,t])=>{if(t=='o'){B(a,b,c,d,12.5,12.58,M(fc[t]),fW);return}
